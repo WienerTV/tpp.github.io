@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>調査用</title>
+    <style>
+        /* --- 全体のスタイル --- */
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* --- 動画コンテナ関連 --- */
+        .video-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #000;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .ad-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- UI要素 --- */
+        #play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-top: 30px solid transparent;
+            border-bottom: 30px solid transparent;
+            border-left: 50px solid rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: border-left-color 0.2s ease;
+        }
+
+        #play-button:hover {
+            border-left-color: white;
+        }
+
+        #skip-button {
+            position: absolute;
+            bottom: 5%;
+            right: 5%;
+            width: 25%;
+            max-width: 130px;
+            padding: 1.5% 0;
+            font-size: 1.8vw; /* 少し小さく調整 */
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            display: none; /* 初期状態は非表示 */
+            transition: background-color 0.2s ease;
+        }
+        
+        /* ### 追加 ### ボタンが無効な時のスタイル */
+        #skip-button:disabled {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #aaa;
+            cursor: not-allowed;
+            border-color: #555;
+        }
+        
+
+        
+        #skip-button:hover:not(:disabled), #unmute-button:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        #time-display {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>広告の後に本編動画が再生されます</h1>
+    <div class="video-container">
+        <video id="main-video" src="main.mp4" controls></video>
+        <div class="ad-overlay" id="ad-overlay">
+            <video id="ad-video" src="ad.mp4" playsinline></video>
+            <div id="play-button"></div>
+            <button id="skip-button" disabled></button> <div id="unmute-button">🔇</div>
+        </div>
+    </div>
+    <p id="time-display"></p>
+
+    <script>
+        // --- 1. 要素の取得 ---
+        const mainVideo = document.getElementById('main-video');
+        const adOverlay = document.getElementById('ad-overlay');
+        const adVideo = document.getElementById('ad-video');
+        const playButton = document.getElementById('play-button');
+        const skipButton = document.getElementById('skip-button');
+        const unmuteButton = document.getElementById('unmute-button');
+        const timeDisplay = document.getElementById('time-display');
+
+        // --- 2. 設定値 ---
+        const skippableTime = 5; // スキップ可能になるまでの時間 (秒)
+        let adStartTime;
+        let countdownInterval; // カウントダウンのタイマーを管理する変数
+
+        // --- 3. 初期化 ---
+        mainVideo.pause();
+
+        // --- 4. イベントリスナーの設定 ---
+        playButton.addEventListener('click', () => {
+            adVideo.play();
+            playButton.style.display = 'none';
+        });
+        
+        // ### 変更 ### 広告の再生が始まったらカウントダウンを開始
+        adVideo.addEventListener('playing', () => {
+            adStartTime = Date.now();
+            startCountdown(); // カウントダウン処理を開始
+        });
+
+        skipButton.addEventListener('click', () => {
+            if (adStartTime) {
+                const skipTime = Date.now();
+                const elapsedTime = (skipTime - adStartTime) / 1000;
+                timeDisplay.textContent = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。`;
+            }
+            playMainVideo();
+        });
+        
+        adVideo.addEventListener('ended', () => {
+            clearInterval(countdownInterval); // タイマーをクリア
+            timeDisplay.textContent = '広告が最後まで再生されました。';
+            playMainVideo();
+        });
+
+        unmuteButton.addEventListener('click', () => {
+            adVideo.muted = !adVideo.muted;
+            unmuteButton.textContent = adVideo.muted ? '🔊' : '🔇';
+        });
+
+        // --- 5. ヘルパー関数 ---
+
+        // ### 追加 ### カウントダウン処理を行う関数
+        function startCountdown() {
+            skipButton.style.display = 'block'; // ボタンを表示
+            skipButton.disabled = true; // ボタンを無効化
+            
+            let remainingTime = skippableTime;
+            skipButton.textContent = `スキップまで ${remainingTime}`;
+
+            countdownInterval = setInterval(() => {
+                remainingTime--;
+                skipButton.textContent = `スキップまで ${remainingTime}`;
+                
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval); // タイマーを停止
+                    skipButton.disabled = false; // ボタンを有効化
+                    skipButton.textContent = 'スキップ';
+                }
+            }, 1000); // 1秒ごとに実行
+        }
+
+        function playMainVideo() {
+            adOverlay.style.display = 'none';
+            adVideo.pause();
+            adVideo.currentTime = 0;
+            mainVideo.play();
+        }
+    </script>
+</body>
+</html>
