@@ -154,7 +154,7 @@
             if (adStartTime) {
                 const skipTime = Date.now();
                 const elapsedTime = (skipTime - adStartTime) / 1000; // 秒に変換
-                timeDisplay.textContent = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。`;
+                timeDisplay.textContent = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。\nアンケート画面に戻ってください。`;
             }
             playMainVideo();
         });
@@ -183,4 +183,5 @@
     </script>
 
 </body>
+
 </html>
