@@ -173,7 +173,7 @@
             if (adStartTime) {
                 const skipTime = Date.now();
                 const elapsedTime = (skipTime - adStartTime) / 1000;
-                timeDisplay.innerHTML = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。<br>アンケート画面に戻ってください。`;
+                timeDisplay.innerHTML = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻ってください。`;
             }
             playMainVideo();
         });
@@ -200,3 +200,4 @@
 
 </body>
 </html>
+
