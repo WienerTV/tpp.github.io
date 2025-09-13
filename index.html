@@ -180,7 +180,7 @@
         
         // (D) 広告が最後まで再生されたら
         adVideo.addEventListener('ended', () => {
-            timeDisplay.textContent = '広告は 15秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻ってください。';
+            timeDisplay.textContent = '広告は 15秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻ってください。<br>スキップボタンが出現しなかった場合は不具合です。';
             playMainVideo();
         });
 
@@ -200,5 +200,6 @@
 
 </body>
 </html>
+
 
 
