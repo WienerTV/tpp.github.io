@@ -173,14 +173,14 @@
             if (adStartTime) {
                 const skipTime = Date.now();
                 const elapsedTime = (skipTime - adStartTime) / 1000;
-                timeDisplay.innerHTML = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻ってください。`;
+                timeDisplay.innerHTML = `広告は ${elapsedTime.toFixed(2)}秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻り、回答欄にスキップ時間を記入してください。`;
             }
             playMainVideo();
         });
         
         // (D) 広告が最後まで再生されたら
         adVideo.addEventListener('ended', () => {
-            timeDisplay.textContent = '広告は 15秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻ってください。<br>スキップボタンが出現しなかった場合は不具合です。';
+            timeDisplay.textContent = '広告は 15秒でスキップされました。<br>ブラウザの「戻る」でアンケート画面に戻り、回答欄にスキップ時間を記入してください。<br>スキップボタンが出現しなかった場合は不具合です。';
             playMainVideo();
         });
 
@@ -200,6 +200,7 @@
 
 </body>
 </html>
+
 
 
 
